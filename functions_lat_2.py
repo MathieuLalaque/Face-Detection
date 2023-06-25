@@ -1,9 +1,6 @@
 import numpy as np
-
 import cv2 as cv
 
-#id_list = range(50)
-#id_threshold = np.zeros((50,100))
 
 def create_latence(size = (600,800)):
     return(np.zeros(size,np.int32))
