@@ -7,7 +7,7 @@ def create_latence(size = (600,800)):
 
 def ping(x,y,latence,size_latence,n_latence =100):
 
-#for now no check if on edge
+
     latence[y-size_latence:y+size_latence,x-size_latence:x+size_latence] = n_latence
 
 def check_latence(x,y,latence):
@@ -73,7 +73,3 @@ def store(faces):
     score = np.array(faces[:,-1])
 
     return(coords,score)
-
-def sort_by_score(coords,score):
-    idx = score.argsort()[::-1]
-    return(coords[idx],score[idx])

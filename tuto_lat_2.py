@@ -24,7 +24,7 @@ parser.add_argument('--face_recognition_model', '-fr', type=str, default='face_r
                     help='Path to the face recognition model. Download the model at https://github.com/opencv/opencv_zoo/tree/master/models/face_recognition_sface')
 parser.add_argument('--score_threshold','-st', type=float, default=0.9,
                     help='Filtering out faces of score < score_threshold.')
-parser.add_argument('--nms_threshold', type=float, default=0.3, help='Suppress bounding boxes of iou >= nms_threshold.')
+parser.add_argument('--nms_threshold','-n', type=float, default=0.3, help='Suppress bounding boxes of iou >= nms_threshold.')
 parser.add_argument('--top_k', type=int, default=5000, help='Keep top_k bounding boxes before NMS.')
 parser.add_argument('--save', '-s', type=str2bool, default=False,
                     help='Set true to save results. This flag is invalid when using camera.')

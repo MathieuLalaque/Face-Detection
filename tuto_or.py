@@ -133,7 +133,7 @@ if __name__ == '__main__':
             hasFrame, frame = cap.read()
             if not hasFrame:
                 print('No frames grabbed!')
-                break
+                continue
             frame = cv.resize(frame, (frameWidth, frameHeight))
             # Inference
             tm.start()
