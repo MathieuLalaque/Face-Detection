@@ -18,13 +18,13 @@ parser.add_argument('--image2', '-i2', type=str,
                     help='Path to the input image2. When image1 and image2 parameters given then the program try to find a face on both images and runs face recognition algorithm.')
 parser.add_argument('--video', '-v', type=str, help='Path to the input video.')
 parser.add_argument('--scale', '-sc', type=float, default=1.0, help='Scale factor used to resize input video frames.')
-parser.add_argument('--face_detection_model', '-fd', type=str, default='face_detection_yunet_2021dec.onnx',
+parser.add_argument('--face_detection_model', '-fd', type=str, default='yunet.onnx',
                     help='Path to the face detection model. Download the model at https://github.com/opencv/opencv_zoo/tree/master/models/face_detection_yunet')
 parser.add_argument('--face_recognition_model', '-fr', type=str, default='face_recognition_sface_2021dec.onnx',
                     help='Path to the face recognition model. Download the model at https://github.com/opencv/opencv_zoo/tree/master/models/face_recognition_sface')
 parser.add_argument('--score_threshold','-st', type=float, default=0.9,
                     help='Filtering out faces of score < score_threshold.')
-parser.add_argument('--nms_threshold', type=float, default=0.3, help='Suppress bounding boxes of iou >= nms_threshold.')
+parser.add_argument('--nms_threshold','-nms', type=float, default=0.3, help='Suppress bounding boxes of iou >= nms_threshold.')
 parser.add_argument('--top_k', type=int, default=5000, help='Keep top_k bounding boxes before NMS.')
 parser.add_argument('--save', '-s', type=str2bool, default=False,
                     help='Set true to save results. This flag is invalid when using camera.')
@@ -56,7 +56,10 @@ if __name__ == '__main__':
         (320, 320),
         args.score_threshold,
         args.nms_threshold,
-        args.top_k
+        args.top_k,
+        #backend_id = cv.dnn.DNN_BACKEND_CUDA,
+        #target_id = cv.dnn.DNN_TARGET_CUDA
+
     )
 
     tm = cv.TickMeter()
@@ -144,3 +147,4 @@ if __name__ == '__main__':
             # Visualize results
             cv.imshow('Live', frame)
     cv.destroyAllWindows()
+

@@ -14,7 +14,7 @@ def create_latence(size = (600,800)):
 def ping(x,y,latence,size_latence,n_latence =100):
     """ Update the latence array with a high confidence face
 
-    This method takes the coordinates of a high condience face and update the latence array
+    This method takes the coordinates of a high confidence face and update the latence array
     by assigning the value n_latence to a square of middle (x,y) and side size_latence/2
 
     :param x,y: coordinates of the face
@@ -23,7 +23,7 @@ def ping(x,y,latence,size_latence,n_latence =100):
     :type latence: numpy array
     :param size_latence : size of the area in which the score threshold is lowered
     :type size_latence : int
-    :param n_latence : number of frames the treshold will be lowered
+    :param n_latence : number of frames the threshold will be lowered
     :type n_latence: int
     """
     size = round(size_latence)
@@ -56,7 +56,7 @@ def sort_by_score(coords,score):
     """
     idx = score.argsort()[::-1]
     return(coords[idx],score[idx])
-def visualize_and_blur(input, coords,score, fps,latence,max,size_latence=10,threshold = 0.6,threshold2 = 0.15,scale = 1.0):
+def visualize_and_blur(input, coords,score, fps,latence,max,size_latence=10,threshold = 0.6,threshold2 = 0.15,scale = 1.0,n_latence=100):
 
     """Takes the current frame as input and blur the relevant areas
 
@@ -78,7 +78,10 @@ def visualize_and_blur(input, coords,score, fps,latence,max,size_latence=10,thre
     :type threshold: float
     :param threshold2: threshold from which output of the models are considered to be faces IF faces were detected before (if higher)
     :type threshold2: float
-
+    :param scale: Ratio used to resize input image. Must be given so the results are relative to the original image and to keep hyper parameters steady
+    :type scale: float
+    :param n_latence: number of frames the algorithm will consider a low confidence face to be a detection after a high confidence face is detected
+    :type n_latence: int
     """
     i = 0
     ratio = 1/scale
@@ -87,15 +90,16 @@ def visualize_and_blur(input, coords,score, fps,latence,max,size_latence=10,thre
     # Faces with high confidence
     while i < n and score[i] > threshold:
 
-        print(
-            'Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(
-                i+1, coords[i][0], coords[i][1], coords[i][2], coords[i][3], score[i]))
+        #print(
+        #    'Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(
+        #        i+1, coords[i][0], coords[i][1], coords[i][2], coords[i][3], score[i]))
 
         x = coords[i][0]
         y = coords[i][1]
         w = coords[i][2]
         h = coords[i][3]
 
+        ### The neural network can output negative values when face partially outside screen
         if x < 0:
             x = 0
         if y < 0:
@@ -111,12 +115,19 @@ def visualize_and_blur(input, coords,score, fps,latence,max,size_latence=10,thre
         else:
             blur = cv.blur(ROI,(10,10))
 
+        # Makes the blurred part "televic" green
 
+        televic_green = np.zeros_like(blur)
+        televic_green[:,:] = [11,201,176]
+        #televic_green = televic_green / 255
+
+        val = 0.5
+        blur = cv.addWeighted(televic_green, val, blur, 1 - val, 0)
 
         # Insert ROI back into image
         input[round(ratio*y):round(ratio*(y + h)), round(ratio*x):round(ratio*(x + w))] = blur
 
-        ping(x,y,latence,size_latence*scale)
+        ping(x,y,latence,size_latence*scale,n_latence=n_latence)
 
         i+=1
     #update max number of faces
@@ -153,13 +164,20 @@ def visualize_and_blur(input, coords,score, fps,latence,max,size_latence=10,thre
             else:
                 blur = cv.blur(ROI, (10, 10))
 
+            televic_green = np.zeros_like(blur)
+            televic_green[:, :] = [11, 201, 176]
+            # televic_green = televic_green / 255
+
+            val = 0.5
+            blur = cv.addWeighted(televic_green, val, blur, 1 - val, 0)
+
             # Insert ROI back into image
             input[round(ratio * y):round(ratio * (y + h)), round(ratio * x):round(ratio * (x + w))] = blur
 
 
-            print(
-                'Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(
-                    idx, coords[i][0], coords[i][1], coords[i][2], coords[i][3], score[i]))
+            #print(
+            #    'Face {}, top-left coordinates: ({:.0f}, {:.0f}), box width: {:.0f}, box height {:.0f}, score: {:.2f}'.format(
+            #        idx, coords[i][0], coords[i][1], coords[i][2], coords[i][3], score[i]))
         i+=1
 
     cv.putText(input, 'FPS: {:.2f}'.format(fps), (1, 16), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
@@ -186,7 +204,8 @@ def predict(coords,score,latence,max,size_latence=10,threshold = 0.6,threshold2 
     :type threshold: float
     :param threshold2: threshold from which output of the models are considered to be faces IF faces were detected before (if higher)
     :type threshold2: float
-
+    :param scale: Ratio used to resize input image. Must be given so the results are relative to the original image and to keep hyper parameters steady
+    :type scale: float
     """
     i = 0
 
