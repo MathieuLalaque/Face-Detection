@@ -1,5 +1,5 @@
 # Face-Detection
-This repo uses Yunet model (https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) and a post processing script for face detection on CCTV Camera
+This repo uses Yunet model (https://github.com/opencv/opencv_zoo/tree/main/models/face_detection_yunet) and a post processing script for face detection on CCTV train camera 
 More information in Mathieu_Lalaque_Internship_report.pdf
 
 The end result of my work are condensed in functions_tr.py and demo_live.py
